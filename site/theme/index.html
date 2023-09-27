@@ -1,0 +1,67 @@
+{% extends "home.html" %}
+
+{% block page_content %}
+<header>
+  <div class="container">
+    <nav>
+      <div id="logo"></div>
+      <ul>
+        <li><a href="https://github.com/lyft/envoy-mobile">Github</a></li>
+        <li><a href="/docs/envoy-mobile/latest/index.html">Docs</a></li>
+        <li><a href="/docs/envoy-mobile/latest/start/start.html">Get started</a></li>
+      </ul>
+    </nav>
+    <section>
+      <h1>Envoy <b>Mobile</b></h1>
+      <p>
+        Envoy Mobile brings the power and consistency of <a href="https://www.envoyproxy.io/">Envoy Proxy</a>
+        to the iOS and Android platforms, providing a ubiquitous API and abstraction for mobile application
+        networking. Running Envoy on the phone, at the edge, and within the datacenter provides unparalleled
+        networking functionality and observability to modern distributed applications.
+      </p>
+      <div id="buttons">
+        <a href="/docs/envoy-mobile/latest/start/start.html"
+           class="download">Get started</a>
+      </div>
+      <div class="cleaner"></div>
+      <div id="preview-ribbon"></div>
+    </section>
+    <div id="phone"></div>
+  </div>
+  <div id="back-clouds"></div>
+  <div id="front-clouds"></div>
+</header>
+
+<div class="container">
+
+  <section id="body">
+    <article>
+      <div class="icon"
+           id="trend-icon"></div>
+      <h2>Observability</h2>
+      <p>
+        Metrics, logging, distributed tracing, API grouping for aggregate observability of end-user application flows,
+        traffic tapping/recording, and real-time debugging.
+      </p>
+    </article>
+    <article>
+      <div class="icon"
+           id="http3-icon"></div>
+      <h2>Protocols</h2>
+      <p>
+        Cutting edge protocol support including QUIC/HTTP3, TLS 1.3, gRPC streaming, as well as Protobuf IDL driven annotations
+        for advanced networking features including offline/deferred API calls, caching, low connectivity adaptation, and more.
+      </p>
+    </article>
+    <article>
+      <div class="icon"
+           id="traffic-icon"></div>
+      <h2>Traffic management</h2>
+      <p>
+        Envoy’s industry leading traffic management features on mobile, including retry policies, circuit breaking, timeouts,
+        as well as the full power of xDS dynamic routing, configuration, and policy management.
+      </p>
+    </article>
+  </section>
+</div>
+{% endblock page_content %}

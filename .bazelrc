@@ -1,0 +1,10 @@
+startup --host_jvm_args=-Xmx3g
+
+run --color=yes
+build --color=yes
+
+build --jobs=HOST_CPUS-1
+build --action_env=SPHINX_JOBS
+build --action_env=ENVOY_BLOB_SHA
+build --action_env=ENVOY_DOCS_RELEASE_LEVEL
+build --action_env=ENVOY_DOCS_VERSION_STRING
