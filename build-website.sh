@@ -2,8 +2,20 @@
 
 set -o pipefail
 
-echo "BUILD ..."
+BAZEL="${BAZEL:-bazel}"
+OUTPUT_DIR="${1:-_site}"
 
-mkdir _site
+if  [[ -e "$OUTPUT_DIR" ]]; then
+    echo "Path to build the website (${OUTPUT_DIR}) exists, removing contents"
+    rm -rf "${OUTPUT_DIR}"/*
+fi
 
-echo hello _site/index.html
+$BAZEL info
+
+if [[ -n "$CI" ]]; then
+    $BAZEL shutdown || :
+fi
+
+echo "AT END OF SCRIPT"
+
+exit 0
