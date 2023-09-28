@@ -1,7 +1,4 @@
-load("@python3//:defs.bzl", "interpreter")
-load("@rules_python//python:pip.bzl", "pip_parse")
-load("//:versions.bzl", "VERSIONS")
+load("@envoy_toolshed//:packages.bzl", "load_website_packages")
 
 def load_packages():
-    # nothing yet ...
-    pass
+    load_website_packages()
