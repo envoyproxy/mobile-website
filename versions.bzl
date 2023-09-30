@@ -9,6 +9,14 @@ VERSIONS = {
         "url": "https://github.com/{repo}/archive/{version}.tar.gz",
         "strip_prefix": "envoy-{version}",
     },
+    "envoy_mobile": {
+        "type": "github_archive",
+        "repo": "envoyproxy/envoy",
+        "version": "7479b6cbdde02186b2fdbad3137965f628d3f42f",
+        "sha256": "b57898e1f685ffa46b135cf6e8bf04cf303441e86d023eb9b11ec0cb30a18cc8",
+        "url": "https://github.com/{repo}/archive/{version}.tar.gz",
+        "strip_prefix": "envoy-{version}/mobile",
+    },
     "envoy_toolshed": {
         "type": "github_archive",
         "repo": "envoyproxy/toolshed",
