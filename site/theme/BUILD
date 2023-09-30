@@ -4,8 +4,8 @@ exports_files(["index.html"])
 
 website_theme(
     name = "theme",
-    home = ":index.html",
     css = "//site/theme/css",
+    home = ":index.html",
     images_extra = "//site/theme/images",
     templates_extra = "//site/theme/templates",
 )

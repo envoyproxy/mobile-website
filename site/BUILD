@@ -18,13 +18,13 @@ pkg_tar(
 
 static_website(
     name = "site",
+    compressor = "@envoy//tools/zstd",
+    compressor_args = "-T0",
     config = ":config",
     content = "//site/content",
     data = "//site/data",
-    deps = [":docs_latest"],
-    theme = "//site/theme",
-    compressor = "@envoy//tools/zstd",
-    compressor_args = "-T0",
     decompressor_args = "-fcd",
     extension = "tar.zst",
+    theme = "//site/theme",
+    deps = [":docs_latest"],
 )
