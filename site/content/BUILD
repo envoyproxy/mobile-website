@@ -12,8 +12,8 @@ pkg_files(
         "images/**/*.svg",
         "pages/*.html",
     ]),
-    strip_prefix = "",
     prefix = "content",
+    strip_prefix = "",
 )
 
 pkg_filegroup(
