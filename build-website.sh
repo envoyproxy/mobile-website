@@ -4,6 +4,7 @@ set -o pipefail
 
 BAZEL="${BAZEL:-bazel}"
 OUTPUT_DIR="${1:-_site}"
+OUTPUT_DIR="$(realpath "${OUTPUT_DIR}")"
 
 if  [[ -e "$OUTPUT_DIR" ]]; then
     echo "Path to build the website (${OUTPUT_DIR}) exists, removing contents"
@@ -12,17 +13,13 @@ fi
 
 mkdir -p "${OUTPUT_DIR}"
 
-$BAZEL build //site
-
-echo "Extracting website -> ${OUTPUT_DIR}"
-
 $BAZEL run \
-    @envoy//tools/zstd -- \
-        -cd "${PWD}/bazel-bin/site/site_html.tar.zst" \
-    | tar -x -C "${OUTPUT_DIR}"
+       --@envoy//tools/tarball:target=//site \
+       @envoy//tools/tarball:unpack \
+       "$OUTPUT_DIR"
 
 if [[ -n "$CI" ]]; then
     $BAZEL shutdown || :
 fi
 
-echo "Website built (${ENVOY_COMMIT}) in ${OUTPUT_DIR}"
+echo "Website built in ${OUTPUT_DIR}"
