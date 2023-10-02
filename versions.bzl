@@ -13,7 +13,7 @@ VERSIONS = {
     "envoy_mobile": {
         "type": "github_archive",
         "repo": "envoyproxy/envoy",
-        "version": "7479b6cbdde02186b2fdbad3137965f628d3f42f",
+        "version": "40ce065b8d4744695233a0fca33a4ec879778489",
         "sha256": "7fd024280482f0ed121302bf9b389cb0590498907f7f035f439886def2aaaf3e",
         "url": "https://github.com/{repo}/archive/{version}.tar.gz",
         "patches": ["@envoy_mobile_website//bazel:envoy-mobile.patch"],

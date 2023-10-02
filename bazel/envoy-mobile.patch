@@ -1,52 +1,21 @@
 diff --git a/BUILD b/BUILD
-index e9f3f96752..f7621d1d51 100644
+index 5797eabff4..f7621d1d51 100644
 --- a/BUILD
 +++ b/BUILD
-@@ -7,11 +7,16 @@ load(
-     "xcode_schemes",
-     "xcodeproj",
- )
-+load("@envoy//tools/base:envoy_python.bzl", "envoy_py_namespace")
- load("@io_bazel_rules_kotlin//kotlin/internal:toolchains.bzl", "define_kt_toolchain")
- load("//bazel:framework_imports_extractor.bzl", "framework_imports_extractor")
+@@ -15,6 +15,8 @@ licenses(["notice"])  # Apache 2
  
- licenses(["notice"])  # Apache 2
+ envoy_py_namespace()
  
-+envoy_py_namespace()
-+
 +exports_files(["VERSION"])
 +
  alias(
      name = "ios_xcframework",
      actual = "//library/swift:Envoy",
 diff --git a/docs/BUILD b/docs/BUILD
-index fcddec5075..161ceef592 100644
+index 18aa51e276..9c8b5f80f6 100644
 --- a/docs/BUILD
 +++ b/docs/BUILD
-@@ -1,6 +1,6 @@
- load("@base_pip3//:requirements.bzl", "requirement")
- load("@envoy//bazel:envoy_build_system.bzl", "envoy_package")
--load("@envoy//tools/base:envoy_python.bzl", "envoy_entry_point")
-+load("@envoy//tools/base:envoy_python.bzl", "envoy_entry_point", "envoy_py_namespace")
- load("@rules_pkg//pkg:mappings.bzl", "pkg_filegroup", "pkg_files")
- load("@rules_pkg//pkg:pkg.bzl", "pkg_tar")
- 
-@@ -8,8 +8,14 @@ licenses(["notice"])  # Apache 2
- 
- envoy_package()
- 
-+envoy_py_namespace()
-+
- envoy_entry_point(
-     name = "sphinx",
-+    init_data = [
-+        "//:py-init",
-+        ":py-init",
-+    ],
-     pkg = "sphinx",
-     script = "sphinx-build",
-     deps = [
-@@ -58,10 +64,42 @@ pkg_tar(
+@@ -64,10 +64,42 @@ pkg_tar(
  )
  
  genrule(
@@ -57,8 +26,8 @@ index fcddec5075..161ceef592 100644
 +    cmd = """
 +    . $(location @envoy//bazel:volatile_env) \
 +    && VERSION_NUMBER="$$(cat $(location //:VERSION))" \
-+    && BUILD_SHA="$${BUILD_SHA:-$${ENVOY_BUILD_SCM_REVISION}}" \
-+    && export ENVOY_DOCS_VERSION_STRING="$${VERSION_NUMBER}"-"$${BUILD_SHA:0:6}" \
++    && export ENVOY_BLOB_SHA=$${BUILD_SHA:-$${ENVOY_BUILD_SCM_REVISION:-$${{BUILD_SCM_REVISION}}} \
++    && export ENVOY_DOCS_VERSION_STRING="$${VERSION_NUMBER}"-"$${ENVOY_BLOB_SHA:0:6}" \
 +    && export ENVOY_DOCS_RELEASE_LEVEL=pre-release \
 +    && mkdir -p build \
 +    && tar xf $(location :rst) -C build \
@@ -70,13 +39,13 @@ index fcddec5075..161ceef592 100644
 +         output \
 +    && tar czf $@ -C output .
 +    """,
++    stamp = 1,
 +    tools = [
 +        ":rst",
 +        ":sphinx",
 +        "//:VERSION",
 +        "@envoy//bazel:volatile_env",
 +    ],
-+    stamp = 1,
 +)
 +
 +genrule(
@@ -85,13 +54,13 @@ index fcddec5075..161ceef592 100644
      cmd = """
      mkdir -p build \
 +    && VERSION_NUMBER="$$(cat $(location //:VERSION))" \
-+    && BUILD_SHA="$${BUILD_SHA:-UNKNOWN}" \
-+    && export ENVOY_DOCS_VERSION_STRING="$${VERSION_NUMBER}"-"$${BUILD_SHA:0:6}" \
++    && export ENVOY_BLOB_SHA="$${BUILD_SHA:-UNKNOWN}" \
++    && export ENVOY_DOCS_VERSION_STRING="$${VERSION_NUMBER}"-"$${ENVOY_BLOB_SHA:0:6}" \
 +    && export ENVOY_DOCS_RELEASE_LEVEL=pre-release \
      && tar xf $(location :rst) -C build \
      && $(location :sphinx) \
           -W \
-@@ -74,5 +112,11 @@ genrule(
+@@ -80,5 +112,11 @@ genrule(
      tools = [
          ":rst",
          ":sphinx",
@@ -104,7 +73,7 @@ index fcddec5075..161ceef592 100644
 +    actual = ":html_release",
 +)
 diff --git a/docs/build.sh b/docs/build.sh
-index a45286c397..65a9fe8b0f 100755
+index a45286c397..5e86fd5471 100755
 --- a/docs/build.sh
 +++ b/docs/build.sh
 @@ -19,16 +19,9 @@ then
@@ -137,31 +106,41 @@ index a45286c397..65a9fe8b0f 100755
 -      //docs
 +./bazelw build "$DOCS_TARGET"
  
- tar xf bazel-bin/docs/docs.tar.gz -C "$DOCS_OUTPUT_DIR" .
+-tar xf bazel-bin/docs/docs.tar.gz -C "$DOCS_OUTPUT_DIR" .
++tar xf bazel-bin/docs/html.tar.gz -C "$DOCS_OUTPUT_DIR" .
 diff --git a/docs/conf.py b/docs/conf.py
-index d1b09cf5a7..be3faeb68b 100644
+index d1b09cf5a7..9dbeba35fc 100644
 --- a/docs/conf.py
 +++ b/docs/conf.py
-@@ -52,7 +52,11 @@ if not os.environ.get('ENVOY_DOCS_RELEASE_LEVEL'):
+@@ -48,11 +48,11 @@ def setup(app):
+     app.add_directive('substitution-code-block', SubstitutionCodeBlock)
+ 
+ 
+-if not os.environ.get('ENVOY_DOCS_RELEASE_LEVEL'):
++if not (release_level := os.environ.get('ENVOY_DOCS_RELEASE_LEVEL')):
      raise Exception("ENVOY_DOCS_RELEASE_LEVEL env var must be defined")
  
- release_level = os.environ['ENVOY_DOCS_RELEASE_LEVEL']
+-release_level = os.environ['ENVOY_DOCS_RELEASE_LEVEL']
 -blob_sha = os.environ['ENVOY_BLOB_SHA']
-+blob_sha = os.environ.get(
-+    "ENVOY_BLOB_SHA",
-+    os.environ.get(
-+        "ENVOY_MOBILE_BUILD_SCM_REVISION",
-+        os.environ["BUILD_SCM_REVISION"]))
++if not (blob_sha := os.environ.get("ENVOY_BLOB_SHA")):
++    raise Exception("ENVOY_BLOB_SHA env var must be defined")
  
  # If extensions (or modules to document with autodoc) are in another directory,
  # add these directories to sys.path here. If the directory is relative to the
-@@ -103,8 +107,7 @@ copyright = u'{} {}'.format(datetime.now().year, author)
+@@ -103,13 +103,12 @@ copyright = u'{} {}'.format(datetime.now().year, author)
  # |version| and |release|, also used in various other places throughout the
  # built documents.
  
 -if not os.environ.get('ENVOY_DOCS_VERSION_STRING'):
--    raise Exception("ENVOY_DOCS_VERSION_STRING env var must be defined")
-+
++# The short X.Y version.
++if not (version := os.environ.get("ENVOY_DOCS_VERSION_STRING")):
+     raise Exception("ENVOY_DOCS_VERSION_STRING env var must be defined")
  
- # The short X.Y version.
- version = os.environ['ENVOY_DOCS_VERSION_STRING']
+-# The short X.Y version.
+-version = os.environ['ENVOY_DOCS_VERSION_STRING']
+ # The full version, including alpha/beta/rc tags.
+-release = os.environ['ENVOY_DOCS_VERSION_STRING']
++release = version
+ 
+ # The language for content autogenerated by Sphinx. Refer to documentation
+ # for a list of supported languages.
